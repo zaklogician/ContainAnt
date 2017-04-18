@@ -1,0 +1,83 @@
+[0m[[0minfo[0m] [0mSet current project to containant (in build file:/Users/zak/Documents/ContainAnt-release/)[0m
+[0m[[0minfo[0m] [0mUpdating {file:/Users/zak/Documents/ContainAnt-release/}root...[0m
+[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-library;2.11.4 ...[0m
+[A[2K[0m[[0minfo[0m] [0mResolving org.apache.commons#commons-math3;3.6.1 ...[0m
+[A[2K[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-compiler;2.11.4 ...[0m
+[A[2K[0m[[0minfo[0m] [0mResolving org.scala-lang#scala-reflect;2.11.4 ...[0m
+[A[2K[0m[[0minfo[0m] [0mResolving org.scala-lang.modules#scala-xml_2.11;1.0.2 ...[0m
+[A[2K[0m[[0minfo[0m] [0mResolving org.scala-lang.modules#scala-parser-combinators_2.11;1.0.2 ...[0m
+[A[2K[0m[[0minfo[0m] [0mResolving jline#jline;2.12 ...[0m
+[0m[[0minfo[0m] [0mDone updating.[0m
+[0m[[0minfo[0m] [0mCompiling 16 Scala sources and 1 Java source to /Users/zak/Documents/ContainAnt-release/target/scala-2.11/classes...[0m
+[0m[[0minfo[0m] [0mRunning com.containant.Main [0m
+
+-----------------------------
+Case Study 1: Branin Function
+Runs: 100
+heuristic,min,mean,max,var
+mma,0.5315808327298736,1.8040431019926682,2.4817935287951425,0.24626916183578193
+gre,0.3095436796020258,0.8721351436034668,1.5515083645104633,0.08177819238208636
+ran,0.36439129065913467,1.3731803845205979,2.4581893049808965,0.32950274339722624
+p: 6.357316494181838E-30
+
+
+-----------------------------
+Case Study 2: Subset Sum (P02)
+Runs: 100
+heuristic,min,mean,max,var
+mma,0.025,0.9066338233838234,2.0,0.4521257334381925
+gre,0.013157894736842105,0.6498641431164117,1.0,0.22015395808298716
+ran,7.267441860465116E-4,0.02985879646017733,1.0,0.02011042662940379
+p: 0.00226447689017561
+
+
+-----------------------------
+Case Study 2: Subset Sum (P03)
+Runs: 100
+heuristic,min,mean,max,var
+mma,9.075233687267448E-5,0.3807532573838734,2.0,0.6212409230478604
+gre,6.727664155005382E-5,8.982714700626754E-5,1.0364842454394693E-4,3.1482504497503335E-10
+ran,2.0304650983354247E-6,8.206058667085995E-5,0.0018018018018018018,7.046691017772162E-8
+p: 5.188086895830682E-38
+
+
+---------------------------------
+Case Study 3: Syntax Highlighting (Dark Blue)
+Runs: 25
+heuristic,min,mean,max,var
+mma,29.89235329810143,34.36333463152244,37.823735971257854,5.85146174753539
+gre,27.46890324624151,34.50515636505686,38.02167617265289,8.73134283189664
+ran,27.35632141291944,32.18223149211387,37.575936768683846,7.4680162491047035
+p: 0.6632976952643237
+
+
+---------------------------------
+Case Study 3: Syntax Highlighting (Yellow)
+Runs: 25
+heuristic,min,mean,max,var
+mma,27.66147170961872,31.51242914935194,34.92278567382371,4.017808540753697
+gre,27.228711837558677,32.329891848111494,34.68725570905087,3.297971773390351
+ran,26.03669542855687,29.22228230463868,33.85365401108301,5.666667031418648
+p: 0.08200034890816489
+
+
+-----------------------------
+Case Study 4: Skiplist Configuration
+Runs: 100
+heuristic,min,mean,max,var
+mma,0.20876826722338204,0.2770331867594273,0.3333333333333333,0.001285232472029882
+gre,0.25,0.25,0.25,0.0
+ran,0.20876826722338204,0.2500290017179814,0.2724795640326976,2.1025035928544044E-4
+p: 5.207056964669771E-15
+
+
+-----------------------------
+Case Study 5: Dynamic Heap
+Runs: 10
+heuristic,min,mean,max,var
+mma,46801.0,46801.0,46801.0,0.0
+gre,46556.0,46752.0,46801.0,10671.111111111111
+ran,46243.0,46594.4,46801.0,52919.600000000006
+p: 0.16785065605707494
+
+[0m[[32msuccess[0m] [0mTotal time: 46 s, completed Apr 18, 2017 8:39:23 PM[0m
