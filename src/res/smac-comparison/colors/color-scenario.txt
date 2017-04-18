@@ -1,5 +1,0 @@
-use-instances = false
-runObj = QUALITY
-numberOfRunsLimit = 1000 
-pcs-file = colors/params.pcs
-algo = colors/colors.sh
