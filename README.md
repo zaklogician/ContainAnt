@@ -9,9 +9,7 @@ components for optimal performance and behavior.
 
 ## Usage
 
-To reproduce the results of the article:
-
-Make sure that you have the right Java version (1.8.0_121) by running
+make sure that you have the right Java version (1.8.0_121) by running
 `java -version`. You will need a recent version of the 
 [sbt](http://www.scala-sbt.org/) build tool. Executing `sbt run` will perform
 the experiments and generate a report on the standard output.
