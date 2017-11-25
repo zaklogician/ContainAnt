@@ -48,6 +48,12 @@ object CS2SubsetSum {
     override val RNG: java.util.Random = new java.util.Random(_seed)
     override def toString: String = "ran"
   }
+  
+   object Hmct extends MCTSHeuristic {
+      override val _iterations = 1000
+      override val RNG: java.util.Random = new java.util.Random(_seed)
+      override def toString: String = "mct"
+  }
 
   //////////////////////////////////////////////////////////////////////
   // Problem Description
@@ -112,33 +118,38 @@ object CS2SubsetSum {
     println("Case Study 2: Subset Sum (P02)")
     println("Runs: " + _runs)
     
-    val comparison02 =
-      Framework.experiment[Solution](Hmma, Hgre, _runs, P02, subsetSum(5842))
-    val reference02 =
-      Framework.experiment[Solution](Hran, Hran, _runs, P02, subsetSum(5842))
+    {
+      val comparison = Framework.experimentN[Solution](Seq(Hmma, Hgre, Hmct),_runs, P02, subsetSum(5842))
+      val reference = Framework.experiment[Solution](Hran, Hran, _runs, P02, subsetSum(5842))
     
-    println("heuristic,min,mean,max,var")
-    println(comparison02.summary1)
-    println(comparison02.summary2)
-    println(reference02.summary1)
-    println("p: " + comparison02.pvalue)
-    println()
+      println("heuristic,min,mean,max,var")
+      for(i <- 0 until comparison.heuristics.size) {
+        println(comparison.summaries(i))
+      }
+      println(reference.summaries(0))
+      println("pvalues: " + comparison.pvalues)
+      println(if (comparison.pvalues.max < 0.05) "significant" else "not significant")
+      println()
+    }
 
     println("\n-----------------------------")
     println("Case Study 2: Subset Sum (P03)")
     println("Runs: " + _runs)
+
+    {
+      val comparison = Framework.experimentN[Solution](Seq(Hmma, Hgre, Hmct),_runs, P03, subsetSum(2463098))
+      val reference = Framework.experiment[Solution](Hran, Hran, _runs, P03, subsetSum(2463098))
     
-    val comparison03 =
-      Framework.experiment[Solution](Hmma, Hgre, _runs, P03, subsetSum(2463098))
-    val reference03 =
-      Framework.experiment[Solution](Hran, Hran, _runs, P03, subsetSum(2463098))
-    
-    println("heuristic,min,mean,max,var")
-    println(comparison03.summary1)
-    println(comparison03.summary2)
-    println(reference03.summary1)
-    println("p: " + comparison03.pvalue)
-    println()
+      println("heuristic,min,mean,max,var")
+      for(i <- 0 until comparison.heuristics.size) {
+        println(comparison.summaries(i))
+      }
+      println(reference.summaries(0))
+      println("pvalues: " + comparison.pvalues)
+      println(if (comparison.pvalues.max < 0.05) "significant" else "not significant")
+      println()
+    }
+
   }
   
 }

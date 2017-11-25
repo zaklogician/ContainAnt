@@ -42,6 +42,12 @@ object CS1Branin {
     override val RNG: java.util.Random = new java.util.Random(_seed)
     override def toString: String = "ran"
   }
+  
+  object Hmct extends MCTSHeuristic {
+    override val _iterations = 100
+    override val RNG: java.util.Random = new java.util.Random(_seed)
+    override def toString: String = "mct"
+  }
 
   //////////////////////////////////////////////////////////////////////
   // Problem Description
@@ -376,16 +382,18 @@ object CS1Branin {
     println("Runs: " + _runs)
     
     val comparison =
-      Framework.experiment[Branin](Hmma, Hgre, _runs, BraninModule, target)
-
+      Framework.experimentN[Branin](Seq(Hmma, Hgre, Hmct),_runs, BraninModule, target)
+    
     val reference =
       Framework.experiment[Branin](Hran, Hran, _runs, BraninModule, target)
     
     println("heuristic,min,mean,max,var")
-    println(comparison.summary1)
-    println(comparison.summary2)
-    println(reference.summary1)
-    println("p: " + comparison.pvalue)
+    for(i <- 0 until comparison.heuristics.size) {
+      println(comparison.summaries(i))
+    }
+    println(reference.summaries(0))
+    println("pvalues: " + comparison.pvalues)
+    println(if (comparison.pvalues.max < 0.05) "significant" else "not significant")
     println()
   }
   

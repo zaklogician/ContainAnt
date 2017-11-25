@@ -36,45 +36,34 @@ object Framework {
   }
   
   
-  trait DescriptiveSummary {
-    val min: Double
-    val mean: Double
-    val max: Double
-    val variance: Double
-    override def toString: String = s"$min,$mean,$max,$variance"
+  case class DescriptiveSummary(
+    name: String,
+    min: Double,
+    mean: Double,
+    max: Double,
+    variance: Double
+  ) {
+    override def toString: String = s"$name,$min,$mean,$max,$variance"
   }
   
   case class ExperimentResult[T](
-    heuristic1: Heuristic,
-    heuristic2: Heuristic,
-    results1: Seq[RunResult[T]],
-    results2: Seq[RunResult[T]],
-    mean1: Double,
-    mean2: Double,
-    pvalue: Double
+    heuristics: Seq[Heuristic],
+    results: Seq[Seq[RunResult[T]]],
+    pvalues: Seq[Double]
   ) {
-    object summary1 extends DescriptiveSummary {
-      override val min: Double =
-        StatUtils.min( results1.map(_.fitness).toArray )
-      override val mean: Double =
-        StatUtils.mean( results1.map(_.fitness).toArray )
-      override val max: Double =
-        StatUtils.max( results1.map(_.fitness).toArray )
-      override val variance: Double =
-        StatUtils.variance( results1.map(_.fitness).toArray )
-      override def toString: String = s"$heuristic1,$min,$mean,$max,$variance"
-    }
-    object summary2 extends DescriptiveSummary {
-      override val min: Double =
-        StatUtils.min( results2.map(_.fitness).toArray ) 
-      override val mean: Double =
-        StatUtils.mean( results2.map(_.fitness).toArray )
-      override val max: Double =
-        StatUtils.max( results2.map(_.fitness).toArray )
-      override val variance: Double =
-        StatUtils.variance( results2.map(_.fitness).toArray )
-      override def toString: String = s"$heuristic2,$min,$mean,$max,$variance"
-    }
+    
+    def summarize(heuristic: Heuristic, results: Seq[RunResult[T]]): DescriptiveSummary = 
+      DescriptiveSummary(
+        heuristic.toString,
+        StatUtils.min( results.map(_.fitness).toArray ),
+        StatUtils.mean( results.map(_.fitness).toArray ),
+        StatUtils.max( results.map(_.fitness).toArray ),
+        StatUtils.variance( results.map(_.fitness).toArray )
+      )
+    
+    val summaries: Seq[DescriptiveSummary] = 
+      (heuristics, results).zipped map { (x,y) => summarize(x,y) }
+    
   }
   
   /** 
@@ -82,50 +71,64 @@ object Framework {
    * one has a higher mean best of run on a single given test instance.
    * 
    * We use the Wineberg-Christensen protocol to determine the winner.
-   */
+   */   
+  def experimentN[T](
+    heuristics: Seq[Heuristic],
+    runs: Int,
+    instance: Module,
+    maximizing: T => Double
+  )(implicit ev: ClassTag[T]): ExperimentResult[T] = {
+    // Perform all runs
+    val justResults: Seq[(Heuristic,Seq[RunResult[T]])] = heuristics.map { h =>
+      (h, for (r <- 1 to runs) yield run(h, instance, maximizing))
+    }
+    val results: Map[Heuristic, Seq[RunResult[T]]] = Map() ++ justResults
+
+    
+    val pvalues = for {
+      i <- 0   until heuristics.size
+      j <- i+1 until heuristics.size
+    } yield {
+      val heuristic1 = heuristics(i)
+      val heuristic2 = heuristics(j)
+      val results1 = results( heuristic1 )
+      val results2 = results( heuristic2 )
+      val merged = results1 ++ results2
+      // Rank results
+      val ranked = merged.sortBy(_.fitness).zipWithIndex
+
+      // Average ranks after combining by fitness
+      val combined = ranked.groupBy(_._1.fitness)
+      val averaged = combined.values flatMap { xs =>
+        val rank = xs.map(_._2).sum / (1.0*xs.size)
+        xs.map(x => (x._1,rank))
+      }
+
+      // Break the ranks into groups
+      val ranks1 = 
+        averaged.filter(x => x._1.heuristic == heuristic1).map(_._2.toDouble)
+      val ranks2 = 
+        averaged.filter(x => x._1.heuristic == heuristic2).map(_._2.toDouble)
+
+      // Perform a t-test on the rank groups
+      val test = new TTest()
+      test.pairedTTest(ranks1.toArray, ranks2.toArray)
+    }
+    
+    ExperimentResult( 
+      heuristics,
+      justResults.map(_._2),
+      pvalues
+    )
+  }
+  
   def experiment[T](
     heuristic1: Heuristic,
     heuristic2: Heuristic,
     runs: Int,
     instance: Module,
     maximizing: T => Double
-  )(implicit ev: ClassTag[T]): ExperimentResult[T] = {
-    // Perform all runs
-    val results1 = for(r <- 1 to runs) yield
-      run(heuristic1, instance, maximizing)
-    val results2 = for(r <- 1 to runs) yield 
-      run(heuristic2, instance, maximizing)
-    
-    // Merge results
-    val merged = results1 ++ results2
-    
-    // Rank results
-    val ranked = merged.sortBy(_.fitness).zipWithIndex
-    
-    // Average ranks after combining by fitness
-    val combined = ranked.groupBy(_._1.fitness)
-    val averaged = combined.values flatMap { xs =>
-      val rank = xs.map(_._2).sum / (1.0*xs.size)
-      xs.map(x => (x._1,rank))
-    }
-    
-    // Break the ranks into groups
-    val ranks1 = 
-      averaged.filter(x => x._1.heuristic == heuristic1).map(_._2.toDouble)
-    val ranks2 = 
-      averaged.filter(x => x._1.heuristic == heuristic2).map(_._2.toDouble)
-    
-    // Perform a t-test on the rank groups
-    val test = new TTest()
-    val mean1 = StatUtils.mean(ranks1.toArray)
-    val mean2 = StatUtils.mean(ranks2.toArray)
-    val pvalue = test.pairedTTest(ranks1.toArray, ranks2.toArray)
-    ExperimentResult( 
-      heuristic1, heuristic2,
-      results1, results2,
-      mean1, mean2,
-      pvalue
-    )
-  }
+  )(implicit ev: ClassTag[T]): ExperimentResult[T] =
+    experimentN(Seq(heuristic1,heuristic2),runs,instance,maximizing)
 
 }

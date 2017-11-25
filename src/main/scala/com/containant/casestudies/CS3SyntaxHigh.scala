@@ -42,6 +42,12 @@ object CS3SyntaxHigh {
     override val RNG: java.util.Random = new java.util.Random(_seed)
     override def toString: String = "ran"
   }
+  
+   object Hmct extends MCTSHeuristic {
+      override val _iterations = 1000
+      override val RNG: java.util.Random = new java.util.Random(_seed)
+      override def toString: String = "mct"
+  }
 
   //////////////////////////////////////////////////////////////////////
   // Problem Description
@@ -229,35 +235,37 @@ object CS3SyntaxHigh {
     println("Case Study 3: Syntax Highlighting (Dark Blue)")
     println("Runs: " + _runs)
     
-    val comparisonDB =
-      Framework.experiment[Scheme](Hmma, Hgre, _runs, DarkBlueColorModule, _.readability)
-
-    val referenceDB =
-      Framework.experiment[Scheme](Hran, Hran, _runs, DarkBlueColorModule, _.readability)
+    {
+      val comparison = Framework.experimentN[Scheme](Seq(Hmma, Hgre, Hmct),_runs, DarkBlueColorModule, _.readability)
+      val reference = Framework.experiment[Scheme](Hran, Hran, _runs, DarkBlueColorModule, _.readability)
     
-    println("heuristic,min,mean,max,var")
-    println(comparisonDB.summary1)
-    println(comparisonDB.summary2)
-    println(referenceDB.summary1)
-    println("p: " + comparisonDB.pvalue)
-    println()
+      println("heuristic,min,mean,max,var")
+      for(i <- 0 until comparison.heuristics.size) {
+        println(comparison.summaries(i))
+      }
+      println(reference.summaries(0))
+      println("pvalues: " + comparison.pvalues)
+      println(if (comparison.pvalues.max < 0.05) "significant" else "not significant")
+      println()
+    }
 
     println("\n---------------------------------")
     println("Case Study 3: Syntax Highlighting (Yellow)")
     println("Runs: " + _runs)
-    
-    val comparisonY =
-      Framework.experiment[Scheme](Hmma, Hgre, _runs, YellowColorModule, _.readability)
 
-    val referenceY =
-      Framework.experiment[Scheme](Hran, Hran, _runs, YellowColorModule, _.readability)
+    {
+      val comparison = Framework.experimentN[Scheme](Seq(Hmma, Hgre, Hmct),_runs, YellowColorModule, _.readability)
+      val reference = Framework.experiment[Scheme](Hran, Hran, _runs, YellowColorModule, _.readability)
     
-    println("heuristic,min,mean,max,var")
-    println(comparisonY.summary1)
-    println(comparisonY.summary2)
-    println(referenceY.summary1)
-    println("p: " + comparisonY.pvalue)
-    println()
+      println("heuristic,min,mean,max,var")
+      for(i <- 0 until comparison.heuristics.size) {
+        println(comparison.summaries(i))
+      }
+      println(reference.summaries(0))
+      println("pvalues: " + comparison.pvalues)
+      println(if (comparison.pvalues.max < 0.05) "significant" else "not significant")
+      println()
+    }
+
   }
-  
 }
